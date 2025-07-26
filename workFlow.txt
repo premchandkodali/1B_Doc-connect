@@ -1,0 +1,47 @@
+1. Architecture Overview
+Pipeline Steps:
+Preprocessing: Chunk PDFs into semantic sections (by heading, paragraph, or fixed length).
+Embedding: Use a small, CPU-friendly embedding model (e.g., all-MiniLM-L6-v2 or bge-small).
+Vector Storage: Store embeddings and metadata in a local Qdrant instance.
+Query Processing: Embed persona + job-to-be-done as a query vector.
+Retrieval: Use Qdrant to retrieve top-N relevant sections.
+Ranking & Explanation: Optionally re-rank and generate brief explanations (extractive or with a tiny LLM).
+Output: Produce structured JSON with ranked results, metadata, and explanations.
+
+
+2. Technology Choices
+Language: Python (best support for all required libraries)
+Embedding Model: all-MiniLM-L6-v2 or bge-small (both <100MB, fast, CPU-friendly, available via sentence-transformers)
+Vector DB: Qdrant (run locally, Python client)
+PDF Parsing: PyMuPDF (fitz) or pdfplumber (both pure Python, no GPU)
+Explanation: Extractive (sentence selection) or, if needed, a quantized GPT2-small (but only if total model size stays <1GB)
+Parallelization: Python multiprocessing for embedding
+No Internet: All models and dependencies downloaded in advance
+
+
+3. Implementation Steps
+A. Preprocessing
+Parse each PDF to extract text.
+Chunk text into sections (by heading, paragraph, or fixed-length window).
+Store: section text, file name, section title (if available), page number.
+B. Embedding
+Load the embedding model (e.g., all-MiniLM-L6-v2).
+Batch encode all sections into vectors.
+Store vectors and metadata in Qdrant.
+C. Qdrant Setup
+Start Qdrant locally (Docker or binary).
+Use Python Qdrant client to create a collection and upload vectors with metadata.
+D. Query Processing
+Concatenate persona and job-to-be-done into a single query string.
+Embed the query using the same model.
+Use Qdrant to perform a kNN search for top-N relevant sections.
+E. Ranking & Explanation
+(Optional) Re-rank results based on metadata (e.g., boost sections from certain docs).
+For each result, generate a brief explanation:
+Extractive: Select the most relevant sentence(s) from the section.
+Generative (optional): Use a tiny quantized LLM (e.g., GPT2-small) to generate a 1-2 sentence explanation, if model size allows.
+F. Output
+Output a JSON with:
+Ranked list of sections
+Metadata: file name, section title, page number
+Explanation of relevance
