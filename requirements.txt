@@ -1,0 +1,7 @@
+PyMuPDF
+sentence-transformers==2.2.2
+qdrant-client==1.6.4
+tqdm 
+huggingface_hub==0.14.1 
+transformers==4.29.2
+tokenizers==0.13.2
