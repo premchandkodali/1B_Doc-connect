@@ -22,12 +22,13 @@ def generate_input_json(pdfs_dir, output_file, persona, job):
                 "filename": fname,
                 "title": fname.replace('.pdf', '')
             })
+    challenge_id = f"round_1b_{datetime.now().strftime('%m%d_%H%M')}"
     # Create the input format
     input_data = {
         "challenge_info": {
-            "challenge_id": "round_1b_002",
-            "test_case_name": "travel_planner",
-            "description": "France Travel"
+            "challenge_id": challenge_id,
+            "test_case_name": persona,
+            "description": job
         },
         "documents": pdf_files,
         "persona": {
