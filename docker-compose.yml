@@ -1,0 +1,31 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/collections"]
+      interval: 20s
+      timeout: 10s
+      retries: 60
+
+  doc-connect:
+    build: .
+    container_name: doc-connect
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    environment:
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+    volumes:
+      - .:/app
+      - hf_cache:/root/.cache/huggingface
+    entrypoint: ["/app/run_doc_connect.sh"]
+
+volumes:
+  qdrant_data:
+  hf_cache:

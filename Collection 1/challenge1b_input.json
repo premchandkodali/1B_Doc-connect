@@ -35,9 +35,9 @@
         }
     ],
     "persona": {
-        "role": "Travel Planner"
+        "role": "Traveller"
     },
     "job_to_be_done": {
-        "task": "Plan a trip of 4 days for a group of 10 college friends."
+        "task": "Plan a four days for South of France."
     }
 }
